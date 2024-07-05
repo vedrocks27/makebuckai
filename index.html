@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Movie Recommendations</title>
+</head>
+<body>
+<h1>Movie Recommendation System</h1>
+<input type="text" id="user_id" placeholder="Enter User ID">
+<button onclick="getRecommendations()">Get Recommendations</button>
+<div id="recommendations"></div>
+
+<script>
+function getRecommendations() {
+    const userId = document.getElementById('user_id').value;
+    fetch('/recommend', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: userId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const list = data.map(movie => `<li>${movie}</li>`).join('');
+        document.getElementById('recommendations').innerHTML = `<ul>${list}</ul>`;
+    });
+}
+</script>
+</body>
+</html>

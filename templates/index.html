@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Image Generator from Text</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            padding: 40px;
+            background: #f4f4f9;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            max-width: 500px;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #5c67f2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            background-color: #4a50e7;
+        }
+        .progress-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: #ddd;
+            border-radius: 8px;
+            margin-top: 20px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #5c67f2;
+            transition: width 0.4s ease;
+        }
+        img {
+            max-width: 500px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generate Anime Image from Text</h1>
+    <textarea id="description" placeholder="Enter a description..." aria-label="Description"></textarea>
+    <button onclick="generateImage()">Generate</button>
+    <div class="progress-container" style="display:none;">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <br>
+    <img id="animeImage" src="" alt="Generated Image Will Appear Here" role="img">
+    <script>
+        function generateImage() {
+            const desc = document.getElementById('description').value;
+            if (!desc.trim()) {
+                alert('Please enter a description.');
+                return;
+            }
+            const progressBar = document.getElementById('progressBar');
+            const progressContainer = document.querySelector('.progress-container');
+            progressBar.style.width = '0%'; // Reset progress bar
+            document.getElementById('animeImage').src = ""; // Clear image
+            document.getElementById('animeImage').alt = "Loading image...";
+
+            progressContainer.style.display = 'block'; // Show progress bar
+            fakeProgress(progressBar);
+
+            fetch('/generate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text: desc})
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok.');
+                return response.blob();
+            })
+            .then(blob => {
+                const imageUrl = URL.createObjectURL(blob);
+                document.getElementById('animeImage').src = imageUrl;
+                document.getElementById('animeImage').alt = "Generated Image";
+                progressContainer.style.display = 'none'; // Hide progress bar
+            })
+            .catch(error => {
+                console.error('Error fetching the image:', error);
+                alert('Failed to generate image. Please try again.');
+                document.getElementById('animeImage').alt = "Failed to load image.";
+                progressContainer.style.display = 'none'; // Hide progress bar
+            });
+        }
+
+        function fakeProgress(progressBar) {
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                } else {
+                    width += 10; // Increment the progress
+                    progressBar.style.width = width + '%';
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
